@@ -1,6 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 import engine.animations
+import engine.player
 pygame.init()
 
 screen_size = (600, 400)
@@ -10,14 +11,36 @@ clock = pygame.time.Clock()
 PlayerAnimations = engine.animations.AnimationDatabase()
 PlayerAnimations.add_animation("assets/animations/player/idle", [40, 10])
 PlayerAnimations.change_animation("idle")
+PlayerAnimations.add_animation("assets/animations/player/run", [10, 10])
+
+player = engine.player.Player(50, 50, 16, 16, "assets/animations/player/idle/idle_0.png")
 
 while True:
     clock.tick(60)
+    #setting up the display and the screen
     screen = pygame.display.set_mode(screen_size)
     display = pygame.Surface(DISPLAY_SIZE)
+    #we draw on the screen what we need
     display.fill((255, 94, 19))
+    #we check for player movement
+    keys = pygame.key.get_pressed()
+    player.momentum[0] = 0
+    if keys[K_a]:
+        player.momentum[0] = -2
+        PlayerAnimations.change_animation("run")
+    if keys[K_d]:
+        player.momentum[0] = 2
+        PlayerAnimations.change_animation("run")
+    if keys[K_d] and keys[K_w]:
+        player.momentum[0] = 0
+        PlayerAnimations.change_animation("idle")
+    if player.momentum[0] == 0:
+        PlayerAnimations.change_animation("idle")
 
-    display.blit(pygame.image.load(PlayerAnimations.get_current_image()), (50, 50))
+
+    player.texture = PlayerAnimations.get_current_image()
+    player.move()
+    player.blit(display)
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
     pygame.display.update()
