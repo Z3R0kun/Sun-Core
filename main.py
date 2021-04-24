@@ -23,8 +23,9 @@ while True:
     #setting up the display and the screen
     screen = pygame.display.set_mode(screen_size)
     display = pygame.Surface(DISPLAY_SIZE)
+    pygame.display.set_caption("A game without a name")
     #we draw on the screen what we need
-    display.fill((255, 94, 19))
+    display.fill((255, 255, 255))
     tiles = map.draw(display)
     #we check for player movement
     keys = pygame.key.get_pressed()
@@ -35,7 +36,7 @@ while True:
     if keys[K_d]:
         player.momentum[0] = 2
         PlayerAnimations.change_animation("run")
-    if keys[K_d] and keys[K_w]:
+    if keys[K_d] and keys[K_a]:
         player.momentum[0] = 0
         PlayerAnimations.change_animation("idle")
     if player.momentum[0] == 0:
@@ -44,13 +45,19 @@ while True:
 
     #we apply gravity to the player
     if not collision_types["bottom"]:
-        if player.momentum[1] < 7:
+        if player.momentum[1] < 10:
             player.momentum[1] += 1
+
+    #we jump
+    if collision_types["bottom"]:
+        if keys[K_w]:
+            player.momentum[1] = - 10
+
 
 
     #we draw the player
     player.texture = PlayerAnimations.get_current_image()
-    player.move(tiles)
+    collision_types = player.move(tiles)
     player.blit(display)
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
@@ -59,7 +66,3 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == KEYDOWN:
-            if event.key == K_w:
-                if collision_types["bottom"]:
-                    player.momentum[1] -= 2
