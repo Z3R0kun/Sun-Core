@@ -45,13 +45,16 @@ while True:
 
     #we apply gravity to the player
     if not collision_types["bottom"]:
-        if player.momentum[1] < 10:
+        if player.momentum[1] < 7:
             player.momentum[1] += 1
 
     #we jump
     if collision_types["bottom"]:
         if keys[K_w]:
-            player.momentum[1] = - 10
+            if player.momentum[0] != 0:
+                player.momentum[1] = -10
+            else:
+                player.momentum[1] = - 8
 
 
 
