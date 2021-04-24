@@ -21,7 +21,6 @@ class Map:
                     line_list.append(letter)
                 self.mapdata.append(line_list)
         self.mapdata = self.mapdata[:-1]
-        print(self.mapdata)
 
     def draw(self, display):
 
