@@ -15,12 +15,13 @@ PlayerAnimations.add_animation("assets/animations/player/idle", [40, 10])
 PlayerAnimations.change_animation("idle")
 PlayerAnimations.add_animation("assets/animations/player/run", [10, 10])
 player = pygame.Rect((150, 50, 16, 16))
+player_spawn = (150, 50)
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 
 damage_sound = pygame.mixer.Sound("assets/sounds/sfx/damage.wav")
 
 map = engine.map.Map("assets/maps/prototype", 16)
-def read_enemies_map(map_path):
+def read_map(map_path):
     mapdata = []
     with open(map_path) as map:
         map = map.read()
@@ -32,7 +33,8 @@ def read_enemies_map(map_path):
     mapdata = mapdata[:-1]
     return mapdata
 
-enemies_map = read_enemies_map("assets/maps/prototype/enemies.txt")
+enemies_map = read_map("assets/maps/prototype/enemies.txt")
+checkpoints_map = read_map("assets/maps/prototype/checkpoints.txt")
 
 
 scroll = [0, 0]
@@ -71,11 +73,12 @@ player_momentum = [0, 0]
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 
 #we spawn the enemies
-y = 0
 sprouts = []
 cannons = []
+total_checkpoints = []
 cannon_bullets = []
 sprout_bullets = []
+y = 0
 for line in enemies_map:
     x = 0
     for block in line:
@@ -97,6 +100,18 @@ for line in enemies_map:
     x = 0
     y += 1
 
+y = 0
+for line in checkpoints_map:
+    x = 0
+    for block in line:
+        if block == "1":
+            checkpoint_animation = engine.animations.AnimationDatabase()
+            checkpoint_animation.add_animation("assets/animations/checkpoint/idle", [20, 7, 7, 7])
+            checkpoint_animation.change_animation("idle")
+            total_checkpoints.append([pygame.Rect((x * 16, y * 16, 16, 16)), checkpoint_animation])
+        x+= 1
+    x = 0
+    y += 1
 def rect_distance(rect1, rect2):
     x_d = abs(rect1.x - rect2.x)
     y_d = abs(rect1.y - rect2.y)
@@ -224,7 +239,7 @@ while True:
         if sprout[0].colliderect(player):
             damage_sound.play()
             time.sleep(0.1)
-            player.x, player.y = 150, 50
+            player.x, player.y = player_spawn
             cannon_bullets = []
             sprout_bullets = []
             death_screen()
@@ -271,10 +286,15 @@ while True:
         if bullet[0].colliderect(player):
             damage_sound.play()
             time.sleep(0.1)
-            player.x, player.y = 150, 50
+            player.x, player.y = player_spawn
             cannon_bullets = []
             sprout_bullets = []
             death_screen()
+
+    for checkpoint in total_checkpoints:
+        display.blit(pygame.image.load(checkpoint[1].get_current_image()), (checkpoint[0].x - scroll[0], checkpoint[0].y - scroll[1]))
+        if checkpoint[0].colliderect(player):
+            player_spawn = (checkpoint[0].x, checkpoint[0].y)
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
     pygame.display.update()
