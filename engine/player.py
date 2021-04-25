@@ -15,9 +15,12 @@ class Player:
         self.texture = texture
         self.jump_timer = 0
 
-    def blit(self, surface):
+    def blit(self, surface, scroll):
+        print(str(self.hitbox.x) + " This is the x")
+        print(str(self.hitbox.x + scroll[0]) + " This is the x + scroll")
+        print(scroll[0])
         if type(self.texture) == str:
-            surface.blit(pygame.image.load(self.texture), (self.hitbox.x, self.hitbox.y))
+            surface.blit(pygame.image.load(self.texture), (self.hitbox.x , self.hitbox.y))
         else:
             surface.blit(self.texture, (self.hitbox.x, self.hitbox.y))
 

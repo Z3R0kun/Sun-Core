@@ -22,7 +22,7 @@ class Map:
                 self.mapdata.append(line_list)
         self.mapdata = self.mapdata[:-1]
 
-    def draw(self, display):
+    def draw(self, display, scroll_value = [0, 0]):
 
         tile_rects = []
         y = 0
@@ -32,8 +32,8 @@ class Map:
                 if tile == "0":
                     pass
                 else:
-                    display.blit(self.images[tile], (x * self.tile_size, y * self.tile_size))
-                    tile_rects.append(pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size))
+                    display.blit(self.images[tile], ((x * self.tile_size) - scroll_value[0], (y * self.tile_size) - scroll_value[1]))
+                    tile_rects.append(pygame.Rect((x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)))
                 x += 1
             x = 0
             y += 1
