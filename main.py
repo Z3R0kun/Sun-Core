@@ -83,7 +83,7 @@ for line in enemies_map:
             sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
             sprout_animation.change_animation("idle")
             sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
-            sprouts.append([pygame.Rect((x * 16, y * 16 + 4, 10, 10)), sprout_animation])
+            sprouts.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), sprout_animation])
         x+= 1
     x = 0
     y += 1
@@ -204,7 +204,7 @@ while True:
     for sprout in sprouts:
         sprout[1].change_animation("idle")
         sprout_texture = sprout[1].get_current_image()
-        display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0], sprout[0].y - scroll[1] - 4))
+        display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0] - 6, sprout[0].y - scroll[1] - 4))
         if sprout[0].colliderect(player):
             damage_sound.play()
             time.sleep(0.1)
