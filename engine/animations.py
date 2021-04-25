@@ -47,7 +47,7 @@ class AnimationDatabase:
         a = _Animation(path, frames_duration, loop)
         self.animations[a.name] = a
     #The update function simply updates the frame we should render every time
-    #it is called y the get_current_image which is called every frame so no need to
+    #it is called by the get_current_image which is called every frame so no need to
     #call it yourself
     def _update(self):
         if self.frame < self.animations[self.status].duration - 1:

@@ -2,6 +2,7 @@ import pygame, sys
 from pygame.locals import *
 import engine.animations
 import engine.map
+import engine.pixeltext
 pygame.init()
 
 screen_size = (600, 400)
@@ -67,6 +68,74 @@ player_momentum = [0, 0]
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 x = 0
 sprouts = []
+
+#we spawn the enemies
+y = 0
+sprouts = []
+for line in enemies_map:
+    x = 0
+    for block in line:
+        if block == "1":
+            sprout_animation = engine.animations.AnimationDatabase()
+            sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
+            sprout_animation.change_animation("idle")
+            sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
+            sprouts.append([pygame.Rect((x * 16, y * 16, 16, 16)), sprout_animation])
+        x+= 1
+    x = 0
+    y += 1
+
+def death_screen():
+    run = True
+    font = engine.pixeltext.Font("small")
+    bg_color = [255, 255, 255]
+    retry_alpha = 0
+    timer = 0
+    while run:
+
+        if bg_color[1] < 10:
+            pass
+        else:
+            bg_color[1] -= 3
+            bg_color[2] -= 3
+
+        if timer < 120:
+            timer += 1
+        else:
+            if retry_alpha < 255:
+                retry_alpha += 1
+
+        screen = pygame.display.set_mode(screen_size)
+        pygame.display.set_caption("YOU DIED!!")
+        display = pygame.Surface(DISPLAY_SIZE)
+        display.fill(bg_color)
+        dead_text = font.generate_text("YOU DIED")
+        retry_text = font.generate_text("RETRY")
+
+
+        dead_text = pygame.transform.scale(dead_text, (dead_text.get_width() * 2, dead_text.get_height() * 2))
+        display.blit(dead_text, (100, 50))
+        retry_text = pygame.transform.scale(retry_text, (retry_text.get_width() * 2, retry_text.get_height() * 2))
+        retry_rect = retry_text.get_rect()
+        retry_rect.x, retry_rect.y = (120, 100)
+        retry_text.set_alpha(retry_alpha)
+        display.blit(retry_text, (120, 100))
+
+
+
+        screen.blit(pygame.transform.scale(display, screen_size), (0, 0))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == MOUSEBUTTONDOWN:
+                pos = (event.pos[0] /2, event.pos[1] /2)
+                if retry_rect.collidepoint(pos):
+                    print("hello world")
+                    player.x, player.y = 150, 50
+                    run = False
+
 while True:
     scroll[0] += (player.x - scroll[0] - 142)/20
     scroll[1] += (player.y - scroll[1] - 108)/20
@@ -97,33 +166,19 @@ while True:
     #we apply gravity to the player
     if not collision_types["bottom"]:
         if player_momentum[1] < 7:
-            player_momentum[1] += 1
+            player_momentum[1] += 0.3
 
     #we jump
     if collision_types["bottom"]:
         if keys[K_w]:
             if player_momentum[0] != 0:
-                player_momentum[1] = -10
+                player_momentum[1] = -5
             else:
-                player_momentum[1] = - 8
+                player_momentum[1] = - 4
 
 
     collision_types = move(player, tiles, player_momentum)
 
-    #we spawn the enemies
-    y = 0
-    sprouts = []
-    for line in enemies_map:
-        x = 0
-        for block in line:
-            if block == "1":
-                sprout_animation = engine.animations.AnimationDatabase()
-                sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
-                sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
-                sprouts.append([pygame.Rect((x * 16, y * 16, 16, 16)), sprout_animation])
-            x+= 1
-        x = 0
-        y += 1
 
     #we draw the player
     player_texture = PlayerAnimations.get_current_image()
@@ -132,7 +187,11 @@ while True:
     #we draw the enemies
     for sprout in sprouts:
         sprout[1].change_animation("idle")
-        display.blit(pygame.image.load(sprout[1].get_current_image()), (sprout[0].x - scroll[0], sprout[0].y - scroll[1]))
+        sprout_texture = sprout[1].get_current_image()
+        display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0], sprout[0].y - scroll[1]))
+        if sprout[0].colliderect(player):
+            death_screen()
+
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
     pygame.display.update()
