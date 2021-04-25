@@ -1,7 +1,6 @@
 import pygame, sys
 from pygame.locals import *
 import engine.animations
-import engine.player
 import engine.map
 pygame.init()
 
@@ -17,6 +16,20 @@ player = pygame.Rect((150, 50, 16, 16))
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 
 map = engine.map.Map("assets/maps/prototype", 16)
+def read_enemies_map(map_path):
+    mapdata = []
+    with open(map_path) as map:
+        map = map.read()
+        for line in map.split("\n"):
+            line_list = []
+            for letter in line:
+                line_list.append(letter)
+            mapdata.append(line_list)
+    mapdata = mapdata[:-1]
+    return mapdata
+
+enemies_map = read_enemies_map("assets/maps/prototype/enemies.txt")
+
 
 scroll = [0, 0]
 
@@ -52,6 +65,8 @@ def move(rect, tiles = [], momentum = []):
 
 player_momentum = [0, 0]
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+x = 0
+sprouts = []
 while True:
     scroll[0] += (player.x - scroll[0] - 142)/20
     scroll[1] += (player.y - scroll[1] - 108)/20
@@ -94,10 +109,30 @@ while True:
 
 
     collision_types = move(player, tiles, player_momentum)
+
+    #we spawn the enemies
+    y = 0
+    sprouts = []
+    for line in enemies_map:
+        x = 0
+        for block in line:
+            if block == "1":
+                sprout_animation = engine.animations.AnimationDatabase()
+                sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
+                sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
+                sprouts.append([pygame.Rect((x * 16, y * 16, 16, 16)), sprout_animation])
+            x+= 1
+        x = 0
+        y += 1
+
     #we draw the player
     player_texture = PlayerAnimations.get_current_image()
     display.blit(pygame.image.load(player_texture), (player.x - scroll[0], player.y - scroll[1]))
 
+    #we draw the enemies
+    for sprout in sprouts:
+        sprout[1].change_animation("idle")
+        display.blit(pygame.image.load(sprout[1].get_current_image()), (sprout[0].x - scroll[0], sprout[0].y - scroll[1]))
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
     pygame.display.update()
