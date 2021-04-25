@@ -19,6 +19,8 @@ player_spawn = (150, 50)
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
 
 damage_sound = pygame.mixer.Sound("assets/sounds/sfx/damage.wav")
+cannon_shoot_sound = pygame.mixer.Sound("assets/sounds/sfx/cannon_shoot.wav")
+checkpoint_sound = pygame.mixer.Sound("assets/sounds/sfx/checkpoint.wav")
 
 map = engine.map.Map("assets/maps/prototype", 16)
 def read_map(map_path):
@@ -259,6 +261,7 @@ while True:
         if cannon[2] > 100:
             cannon[2] = 0
         if rect_distance(player, cannon[0]) < 140 and loaded:
+            cannon_shoot_sound.play()
             cannon_bullet_animation = engine.animations.AnimationDatabase()
             cannon_bullet_animation.add_animation("assets/animations/cannon_bullet/idle", [7, 7])
             cannon_bullet_animation.change_animation("idle")
@@ -294,7 +297,10 @@ while True:
     for checkpoint in total_checkpoints:
         display.blit(pygame.image.load(checkpoint[1].get_current_image()), (checkpoint[0].x - scroll[0], checkpoint[0].y - scroll[1]))
         if checkpoint[0].colliderect(player):
+            if player_spawn != (checkpoint[0].x, checkpoint[0].y):
+                checkpoint_sound.play()
             player_spawn = (checkpoint[0].x, checkpoint[0].y)
+
 
     screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
     pygame.display.update()
