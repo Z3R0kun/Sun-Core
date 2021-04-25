@@ -3,6 +3,7 @@ from pygame.locals import *
 import engine.animations
 import engine.map
 import engine.pixeltext
+import time
 pygame.init()
 
 screen_size = (600, 400)
@@ -15,6 +16,8 @@ PlayerAnimations.change_animation("idle")
 PlayerAnimations.add_animation("assets/animations/player/run", [10, 10])
 player = pygame.Rect((150, 50, 16, 16))
 collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+
+damage_sound = pygame.mixer.Sound("assets/sounds/sfx/damage.wav")
 
 map = engine.map.Map("assets/maps/prototype", 16)
 def read_enemies_map(map_path):
@@ -80,7 +83,7 @@ for line in enemies_map:
             sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
             sprout_animation.change_animation("idle")
             sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
-            sprouts.append([pygame.Rect((x * 16, y * 16, 16, 16)), sprout_animation])
+            sprouts.append([pygame.Rect((x * 16, y * 16 + 4, 10, 10)), sprout_animation])
         x+= 1
     x = 0
     y += 1
@@ -90,6 +93,7 @@ def death_screen():
     font = engine.pixeltext.Font("small")
     bg_color = [255, 255, 255]
     retry_alpha = 0
+    quit_alpha = 0
     timer = 0
     while run:
 
@@ -99,11 +103,15 @@ def death_screen():
             bg_color[1] -= 3
             bg_color[2] -= 3
 
-        if timer < 120:
+        if timer < 200:
             timer += 1
-        else:
-            if retry_alpha < 255:
+
+        if timer > 120:
+            if retry_alpha < 254:
                 retry_alpha += 1
+        if timer > 180:
+            if quit_alpha < 254:
+                quit_alpha += 1
 
         screen = pygame.display.set_mode(screen_size)
         pygame.display.set_caption("YOU DIED!!")
@@ -111,6 +119,7 @@ def death_screen():
         display.fill(bg_color)
         dead_text = font.generate_text("YOU DIED")
         retry_text = font.generate_text("RETRY")
+        quit_text = font.generate_text("QUIT")
 
 
         dead_text = pygame.transform.scale(dead_text, (dead_text.get_width() * 2, dead_text.get_height() * 2))
@@ -120,6 +129,11 @@ def death_screen():
         retry_rect.x, retry_rect.y = (120, 100)
         retry_text.set_alpha(retry_alpha)
         display.blit(retry_text, (120, 100))
+        quit_text = pygame.transform.scale(quit_text, (quit_text.get_width() * 2, quit_text.get_height() * 2))
+        quit_rect = quit_text.get_rect()
+        quit_rect.x, quit_rect.y = (125, 130)
+        quit_text.set_alpha(quit_alpha)
+        display.blit(quit_text, (125, 130))
 
 
 
@@ -132,9 +146,11 @@ def death_screen():
             if event.type == MOUSEBUTTONDOWN:
                 pos = (event.pos[0] /2, event.pos[1] /2)
                 if retry_rect.collidepoint(pos):
-                    print("hello world")
                     player.x, player.y = 150, 50
                     run = False
+                if quit_rect.collidepoint(pos):
+                    pygame.quit()
+                    sys.exit()
 
 while True:
     scroll[0] += (player.x - scroll[0] - 142)/20
@@ -143,7 +159,7 @@ while True:
     #setting up the display and the screen
     screen = pygame.display.set_mode(screen_size)
     display = pygame.Surface(DISPLAY_SIZE)
-    pygame.display.set_caption("A game without a name")
+    pygame.display.set_caption("Sun Core!")
     #we draw on the screen what we need
     display.fill((255, 255, 255))
     tiles = map.draw(display, scroll)
@@ -188,8 +204,10 @@ while True:
     for sprout in sprouts:
         sprout[1].change_animation("idle")
         sprout_texture = sprout[1].get_current_image()
-        display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0], sprout[0].y - scroll[1]))
+        display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0], sprout[0].y - scroll[1] - 4))
         if sprout[0].colliderect(player):
+            damage_sound.play()
+            time.sleep(0.1)
             death_screen()
 
 
