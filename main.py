@@ -241,6 +241,7 @@ while True:
         if sprout[0].colliderect(player):
             damage_sound.play()
             time.sleep(0.1)
+            player_momentum = [0, 0]
             player.x, player.y = player_spawn
             cannon_bullets = []
             sprout_bullets = []
@@ -290,6 +291,7 @@ while True:
             damage_sound.play()
             time.sleep(0.1)
             player.x, player.y = player_spawn
+            player_momentum = [0, 0]
             cannon_bullets = []
             sprout_bullets = []
             death_screen()
