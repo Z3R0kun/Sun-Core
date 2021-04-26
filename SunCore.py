@@ -451,19 +451,19 @@ def main():
                         level_select = False
 
                     elif level_4_rect.collidepoint(pos):
-                        deep_limit = 1000
+                        deep_limit = 300
                         play = True
                         caption = "Sun Core! - Level 4"
-                        star_pos = [300, 300]
+                        star_pos = [2052, 32]
                         won = False
                         win_timer = 0
-                        star_rect = pygame.Rect((star_pos[0], star_pos[1], 16, 16))
+                        star_rect = pygame.Rect((star_pos[0], star_pos[1], 32, 32))
                         sprout_respawn = []
                         backgrounds = ["assets/images/backgrounds/stars.png", "assets/images/backgrounds/sun.png"]
-                        map = engine.map.Map("assets/maps/level_3", 16)
+                        map = engine.map.Map("assets/maps/level_4", 16)
                         scroll = [0, 0]
-                        enemies_map = read_map("assets/maps/level_3/enemies.txt")
-                        checkpoints_map = read_map("assets/maps/level_3/checkpoints.txt")
+                        enemies_map = read_map("assets/maps/level_4/enemies.txt")
+                        checkpoints_map = read_map("assets/maps/level_4/checkpoints.txt")
                         #we spawn the enemies
                         sprouts = []
                         cannons = []
@@ -493,7 +493,7 @@ def main():
                             y += 1
 
                         y = 0
-                        player_spawn = (50, 0)
+                        player_spawn = (95, 0)
                         player = pygame.Rect((player_spawn[0], player_spawn[1], 16, 16))
                         collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
                         player_momentum = [0, 0]
@@ -523,7 +523,9 @@ def main():
         slept = False
         font.change_color((255, 255, 255))
         music_playing = False
+        immortal = False
         while play:
+            print(player.x, player.y)
             if caption != "Sun Core! - Level 4":
                 if not music_playing:
                     music = normal_music
@@ -591,15 +593,23 @@ def main():
             #we draw the player
             player_texture = PlayerAnimations.get_current_image()
             display.blit(pygame.image.load(player_texture), (player.x - scroll[0], player.y - scroll[1]))
-            display.blit(pygame.image.load("assets/images/tiles/key.png"), (star_pos[0] - scroll[0], star_pos[1] - scroll[1]))
+            if caption != "Sun Core! - Level 4":
+                display.blit(pygame.image.load("assets/images/tiles/key.png"), (star_pos[0] - scroll[0], star_pos[1] - scroll[1]))
+            else:
+                display.blit(pygame.image.load("assets/images/tiles/cage.png"), (star_pos[0] - scroll[0], star_pos[1] - scroll[1]))
 
             if star_rect.colliderect(player):
                 won = True
-            if won:
+            if won and caption != "Sun Core! - Level 4":
                 win_text = font.generate_text("YOU DID IT")
                 star_pos = player.x, player.y - 12
                 win_timer += 1
                 display.blit(win_text, (player.x - 16 - scroll[0], player.y - 20 - scroll[1]))
+            if won and caption == "Sun Core! - Level 4":
+                music_playing = False
+                music.stop()
+                text_cut_scene("END                           ", 1.5, (0, 0))
+                play = False
             if win_timer >= 60:
                 level_select = True
                 play = False
@@ -611,15 +621,16 @@ def main():
                 sprout_texture = sprout[1].get_current_image()
                 display.blit(pygame.image.load(sprout_texture), (sprout[0].x - scroll[0] - 6, sprout[0].y - scroll[1] - 4))
                 if sprout[0].colliderect(player):
-                    damage_sound.play()
-                    time.sleep(0.1)
-                    player_momentum = [0, 0]
-                    player.x, player.y = player_spawn
-                    cannon_bullets = []
-                    sprout_bullets = []
-                    music_playing = False
-                    music.stop()
-                    death_screen()
+                    if not immortal:
+                        damage_sound.play()
+                        time.sleep(0.1)
+                        player_momentum = [0, 0]
+                        player.x, player.y = player_spawn
+                        cannon_bullets = []
+                        sprout_bullets = []
+                        music_playing = False
+                        music.stop()
+                        death_screen()
             for cannon in cannons:
                 loaded = False
                 cannon[1].change_animation("idle")
@@ -661,15 +672,16 @@ def main():
                     texture = pygame.transform.flip(pygame.image.load(bullet[1].get_current_image()), True, False)
                 display.blit(texture, (bullet[0].x - scroll[0], bullet[0].y - scroll[1]))
                 if bullet[0].colliderect(player):
-                    damage_sound.play()
-                    time.sleep(0.1)
-                    player.x, player.y = player_spawn
-                    player_momentum = [0, 0]
-                    cannon_bullets = []
-                    sprout_bullets = []
-                    music_playing = False
-                    music.stop()
-                    death_screen()
+                    if not immortal:
+                        damage_sound.play()
+                        time.sleep(0.1)
+                        player.x, player.y = player_spawn
+                        player_momentum = [0, 0]
+                        cannon_bullets = []
+                        sprout_bullets = []
+                        music_playing = False
+                        music.stop()
+                        death_screen()
                 for sprout in sprouts:
                     if bullet[0].colliderect(sprout[0]):
                         cannon_bullets.remove(bullet)
@@ -697,6 +709,8 @@ def main():
                     pygame.quit()
                     sys.exit()
                 if event.type == KEYDOWN:
+                    if event.key == K_i:
+                        immortal = not immortal
                     if event.key == K_ESCAPE:
                         play = False
                         level_select = False
