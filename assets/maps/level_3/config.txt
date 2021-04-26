@@ -1,0 +1,4 @@
+1:assets/images/tiles/single_tile.png
+2:assets/images/tiles/middle_tile.png
+3:assets/images/tiles/right_tile.png
+4:assets/images/tiles/left_tile.png
