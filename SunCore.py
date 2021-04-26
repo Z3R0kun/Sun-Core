@@ -200,23 +200,23 @@ def main():
         title = pygame.transform.scale(title, (title.get_width()*5, title.get_height() * 5))
         display.blit(title, (50, 15))
 
-        credits = font.generate_text("GITHUB")
-        credits = pygame.transform.scale(credits, (credits.get_width()*2, credits.get_height() * 2))
-        display.blit(credits, (115, 80))
+        credits = font.generate_text("CREDITS\n SOURCE")
+        credits = pygame.transform.scale(credits, (credits.get_width(), credits.get_height() ))
+        display.blit(credits, (125, 150))
         credits_rect = credits.get_rect()
-        credits_rect.x, credits_rect.y = 115, 80
+        credits_rect.x, credits_rect.y = 115, 150
 
         levels = font.generate_text("PLAY")
         levels = pygame.transform.scale(levels, (levels.get_width()*2, levels.get_height() * 2))
-        display.blit(levels, (125, 120))
+        display.blit(levels, (125, 80))
         levels_rect = levels.get_rect()
-        levels_rect.x, levels_rect.y = 113, 120
+        levels_rect.x, levels_rect.y = 125, 80
 
         quit = font.generate_text("QUIT")
         quit = pygame.transform.scale(quit, (quit.get_width()*2, quit.get_height() * 2))
-        display.blit(quit, (125, 150))
+        display.blit(quit, (125, 110))
         quit_rect = quit.get_rect()
-        quit_rect.x, quit_rect.y = 125, 150
+        quit_rect.x, quit_rect.y = 125, 120
 
 
         screen.blit(pygame.transform.scale(display, screen_size), (0, 0))
@@ -249,27 +249,38 @@ def main():
             text = font.generate_text("SELECT A LEVEL")
             text = pygame.transform.scale(text, (text.get_width() * 3, text.get_height() * 3))
             display.blit(text, (30, 10))
+
             #all buttons
 
             level_1 = pygame.image.load("assets/images/buttons/level_1.png")
+            level_1 = pygame.transform.scale(level_1, (100, 67))
             level_1_rect = level_1.get_rect()
-            level_1_rect.x, level_1_rect.y = (20, 60)
-            display.blit(level_1, (20, 60))
+            level_1_rect.x, level_1_rect.y = (20, 50)
+            display.blit(level_1, (20, 50))
 
             level_2 = pygame.image.load("assets/images/buttons/level_2.png")
+            level_2 = pygame.transform.scale(level_2, (100, 67))
             level_2_rect = level_2.get_rect()
-            level_2_rect.x, level_2_rect.y = (60, 60)
-            display.blit(level_2, (60, 60))
+            level_2_rect.x, level_2_rect.y = (180, 50)
+            display.blit(level_2, (180, 50))
 
             level_3 = pygame.image.load("assets/images/buttons/level_3.png")
+            level_3 = pygame.transform.scale(level_3, (100, 67))
             level_3_rect = level_3.get_rect()
-            level_3_rect.x, level_3_rect.y = (100, 60)
-            display.blit(level_3, (100, 60))
+            level_3_rect.x, level_3_rect.y = (20, 127)
+            display.blit(level_3, (20, 127))
 
             level_4 = pygame.image.load("assets/images/buttons/level_4.png")
+            level_4 = pygame.transform.scale(level_4, (100, 67))
             level_4_rect = level_4.get_rect()
-            level_4_rect.x, level_4_rect.y = (140, 60)
-            display.blit(level_4, (140, 60))
+            level_4_rect.x, level_4_rect.y = (180, 127)
+            display.blit(level_4, (180, 127))
+
+            font.change_color((255, 255, 255))
+            for i, coord in enumerate([(65, 73), (225, 73), (65, 151), (225, 151)]):
+                num = font.generate_text(str(i + 1))
+                num = pygame.transform.scale(num, (num.get_width() * 2, num.get_height() * 2))
+                display.blit(num, coord)
 
             screen.blit(pygame.transform.scale(display, screen_size), (0, 0))
             pygame.display.update()
@@ -626,7 +637,7 @@ def main():
                 music_playing = False
                 music.stop()
                 if death_timer < 2500:
-                    text_cut_scene("YOU FINALLY FREE YOUR FRIEND\n        JUST IN TIME       \n     THANKS FOR PLAYING", 1.5, (25, 70))
+                    text_cut_scene("YOU FINALLY FREED YOUR FRIEND\n         JUST IN TIME       \n      THANKS FOR PLAYING", 1.5, (20, 70))
                 elif death_timer >= 2500:
                     text_cut_scene("YOU AND YOUR FRIEND DIDNT MAKE IT IN TIME \n       YOU SHOULD HAVE BEEN FASTER       \n  YOU WERE BURNED BY THE HEAT OF THE SUN", 1, (25, 70))
                 play = False
@@ -731,9 +742,6 @@ def main():
                 if event.type == KEYDOWN:
                     if event.key == K_i:
                         immortal = not immortal
-                    if event.key == K_q:
-                        won = True
-                        death_timer = 3000
                     if event.key == K_ESCAPE:
                         play = False
                         level_select = False
