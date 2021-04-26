@@ -7,6 +7,8 @@ import time
 import webbrowser
 import math
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.set_num_channels(20)
 
 def main():
     screen_size = (600, 400)
@@ -21,6 +23,8 @@ def main():
     damage_sound = pygame.mixer.Sound("assets/sounds/sfx/damage.wav")
     cannon_shoot_sound = pygame.mixer.Sound("assets/sounds/sfx/cannon_shoot.wav")
     checkpoint_sound = pygame.mixer.Sound("assets/sounds/sfx/checkpoint.wav")
+    key_sound = pygame.mixer.Sound("assets/sounds/sfx/key_pick_up.wav")
+    click_sound = pygame.mixer.Sound("assets/sounds/sfx/click.wav")
     normal_music = pygame.mixer.Sound("assets/sounds/music/normal.mp3")
     boss_music = pygame.mixer.Sound("assets/sounds/music/boss.mp3")
 
@@ -140,8 +144,10 @@ def main():
                 if event.type == MOUSEBUTTONDOWN:
                     pos = (event.pos[0] /2, event.pos[1] /2)
                     if retry_rect.collidepoint(pos):
+                        click_sound.play()
                         run = False
                     if quit_rect.collidepoint(pos):
+                        click_sound.play()
                         pygame.quit()
                         sys.exit()
 
@@ -171,6 +177,7 @@ def main():
                     sys.exit()
                 if event.type == KEYDOWN:
                     if any_key_bool:
+                        click_sound.play()
                         run = False
     play = False
     level_select = False
@@ -221,13 +228,16 @@ def main():
             if event.type == MOUSEBUTTONDOWN:
                 pos = (event.pos[0] /2, event.pos[1] /2)
                 if credits_rect.collidepoint(pos):
-                        chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-                        if not webbrowser.get(chrome_path).open('https://github.com/Z3R0kun/Sun-Core/'):
-                            webbrowser.open("https://github.com/Z3R0kun/Sun-Core/")
+                    click_sound.play()
+                    chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+                    if not webbrowser.get(chrome_path).open('https://github.com/Z3R0kun/Sun-Core/'):
+                        webbrowser.open("https://github.com/Z3R0kun/Sun-Core/")
                 if quit_rect.collidepoint(pos):
+                    click_sound.play()
                     pygame.quit()
                     sys.exit()
                 if levels_rect.collidepoint(pos):
+                    click_sound.play()
                     level_select = True
 
         while level_select:
@@ -273,6 +283,7 @@ def main():
                 if event.type == MOUSEBUTTONDOWN:
                     pos = (event.pos[0] /2, event.pos[1] /2)
                     if level_1_rect.collidepoint(pos):
+                        click_sound.play()
                         deep_limit = 600
                         play = True
                         caption = "Sun Core! - Level 1"
@@ -332,6 +343,7 @@ def main():
                             y += 1
                         level_select = False
                     elif level_2_rect.collidepoint(pos):
+                        click_sound.play()
                         deep_limit = 450
                         play = True
                         caption = "Sun Core! - Level 2"
@@ -391,6 +403,7 @@ def main():
                             y += 1
                         level_select = False
                     elif level_3_rect.collidepoint(pos):
+                        click_sound.play()
                         deep_limit = 1000
                         play = True
                         caption = "Sun Core! - Level 3"
@@ -451,6 +464,7 @@ def main():
                         level_select = False
 
                     elif level_4_rect.collidepoint(pos):
+                        click_sound.play()
                         deep_limit = 300
                         play = True
                         caption = "Sun Core! - Level 4"
@@ -518,20 +532,21 @@ def main():
             bullets = font.generate_text("BULLETS KILL ENEMIES")
             key = font.generate_text("TAKE THE KEY TO\nFREE YOUR FRIEND")
         elif caption == "Sun Core! - Level 4":
-            text_cut_scene("YOU FINALLY REACHED THE CORE\n     NOW SAVE YOUR FRIEND\n        AND BE FAST", 1.5, (20, 70))
+            text_cut_scene("YOU FINALLY REACHED THE CORE\n    NOW SAVE YOUR FRIEND\n        AND BE FAST", 1.5, (20, 70))
 
         slept = False
         font.change_color((255, 255, 255))
         music_playing = False
         immortal = False
+        death_timer = 0
         while play:
-            print(player.x, player.y)
             if caption != "Sun Core! - Level 4":
                 if not music_playing:
                     music = normal_music
                     music.play(True)
                     music_playing = True
             else:
+                death_timer += 1
                 if not music_playing:
                     music = boss_music
                     music.play()
@@ -599,6 +614,8 @@ def main():
                 display.blit(pygame.image.load("assets/images/tiles/cage.png"), (star_pos[0] - scroll[0], star_pos[1] - scroll[1]))
 
             if star_rect.colliderect(player):
+                if not won:
+                    key_sound.play()
                 won = True
             if won and caption != "Sun Core! - Level 4":
                 win_text = font.generate_text("YOU DID IT")
@@ -608,7 +625,10 @@ def main():
             if won and caption == "Sun Core! - Level 4":
                 music_playing = False
                 music.stop()
-                text_cut_scene("END                           ", 1.5, (0, 0))
+                if death_timer < 2500:
+                    text_cut_scene("YOU FINALLY FREE YOUR FRIEND\n        JUST IN TIME       \n     THANKS FOR PLAYING", 1.5, (25, 70))
+                elif death_timer >= 2500:
+                    text_cut_scene("YOU AND YOUR FRIEND DIDNT MAKE IT IN TIME \n       YOU SHOULD HAVE BEEN FASTER       \n  YOU WERE BURNED BY THE HEAT OF THE SUN", 1, (25, 70))
                 play = False
             if win_timer >= 60:
                 level_select = True
@@ -711,6 +731,9 @@ def main():
                 if event.type == KEYDOWN:
                     if event.key == K_i:
                         immortal = not immortal
+                    if event.key == K_q:
+                        won = True
+                        death_timer = 3000
                     if event.key == K_ESCAPE:
                         play = False
                         level_select = False
