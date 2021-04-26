@@ -200,6 +200,11 @@ while True:
         level_prototype_rect.x, level_prototype_rect.y = (20, 20)
         display.blit(level_prototype, (20, 20))
 
+        level_1 = pygame.image.load("assets/images/buttons/level_1.png")
+        level_1_rect = level_prototype.get_rect()
+        level_1_rect.x, level_1_rect.y = (60, 20)
+        display.blit(level_1, (60, 20))
+
         screen.blit(pygame.transform.scale(display, screen_size), (0, 0))
         pygame.display.update()
         for event in pygame.event.get():
@@ -209,6 +214,7 @@ while True:
             if event.type == MOUSEBUTTONDOWN:
                 pos = (event.pos[0] /2, event.pos[1] /2)
                 if level_prototype_rect.collidepoint(pos):
+                    deep_limit = 150
                     play = True
                     caption = "Sun Core! - Prototype level"
                     backgrounds = ["assets/images/backgrounds/stars.png", "assets/images/backgrounds/sun.png"]
@@ -261,8 +267,70 @@ while True:
                         x = 0
                         y += 1
                     level_select = False
+                elif level_1_rect.collidepoint(pos):
+                    deep_limit = 270
+                    play = True
+                    caption = "Sun Core! - Level 1"
+                    backgrounds = ["assets/images/backgrounds/stars.png", "assets/images/backgrounds/sun.png"]
+                    map = engine.map.Map("assets/maps/tutorial", 16)
+                    scroll = [0, 0]
+                    enemies_map = read_map("assets/maps/tutorial/enemies.txt")
+                    checkpoints_map = read_map("assets/maps/tutorial/checkpoints.txt")
+                    #we spawn the enemies
+                    sprouts = []
+                    cannons = []
+                    total_checkpoints = []
+                    cannon_bullets = []
+                    sprout_bullets = []
+                    y = 0
+                    for line in enemies_map:
+                        x = 0
+                        for block in line:
+                            if block == "1":
+                                sprout_animation = engine.animations.AnimationDatabase()
+                                sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
+                                sprout_animation.change_animation("idle")
+                                sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
+                                sprouts.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), sprout_animation])
+                            if block == "2":
+                                cannon_animation = engine.animations.AnimationDatabase()
+                                cannon_animation.add_animation("assets/animations/cannon/idle", [40, 7, 7])
+                                cannon_animation.change_animation("idle")
+                                timer = 0
+                                cannons.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), cannon_animation, timer])
+
+
+                            x+= 1
+                        x = 0
+                        y += 1
+
+                    y = 0
+                    player_spawn = (150, 50)
+                    player = pygame.Rect((player_spawn[0], player_spawn[1], 16, 16))
+                    collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+                    player_momentum = [0, 0]
+                    for line in checkpoints_map:
+                        x = 0
+                        for block in line:
+                            if block == "1":
+                                checkpoint_animation = engine.animations.AnimationDatabase()
+                                checkpoint_animation.add_animation("assets/animations/checkpoint/idle", [20, 7, 7, 7])
+                                checkpoint_animation.change_animation("idle")
+                                total_checkpoints.append([pygame.Rect((x * 16, y * 16, 16, 16)), checkpoint_animation])
+                            x+= 1
+                        x = 0
+                        y += 1
+                    level_select = False
 
     while play:
+        if player.y > deep_limit:
+            damage_sound.play()
+            time.sleep(0.1)
+            player_momentum = [0, 0]
+            player.x, player.y = player_spawn
+            cannon_bullets = []
+            sprout_bullets = []
+            death_screen()
         scroll[0] += (player.x - scroll[0] - 142)/20
         scroll[1] += (player.y - scroll[1] - 108)/20
         clock.tick(60)
@@ -383,6 +451,17 @@ while True:
                     checkpoint_sound.play()
                 player_spawn = (checkpoint[0].x, checkpoint[0].y)
 
+        if caption == "Sun Core! - Level 1":
+            font.change_color((255, 255, 255))
+            text = font.generate_text("W A D\nTO MOVE")
+            display.blit(text, (50 - scroll[0], 10 - scroll[1]))
+            text = font.generate_text("SPRINT AND JUMP\nFOR HIGHER JUMPS")
+            display.blit(text, (240 - scroll[0], 20 - scroll[1]))
+            text = font.generate_text("GET THE CHECKPOINT")
+            display.blit(text, (50 - scroll[0], 70 - scroll[1]))
+            text = font.generate_text("AVOID THE MISSILES")
+            display.blit(text, (145 - scroll[0], 90 - scroll[1]))
+
 
         screen.blit(pygame.transform.scale(display, (screen_size)), (0, 0))
         pygame.display.update()
@@ -390,3 +469,8 @@ while True:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    play = False
+                    level_select = False
+                    menu = True

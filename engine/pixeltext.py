@@ -94,7 +94,7 @@ class Font:
         #if color is specified, we replace black with the color
         if self.color:
             newTextSurface_array = pygame.PixelArray(newTextSurface)
-            newTextSurface_array.replace([0, 0, 0], self.color)
+            newTextSurface_array.replace((0, 0, 0), self.color)
             newTextSurface = newTextSurface_array.make_surface()
 
         # then we set the chroma key of the surface
