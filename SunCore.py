@@ -21,6 +21,8 @@ def main():
     damage_sound = pygame.mixer.Sound("assets/sounds/sfx/damage.wav")
     cannon_shoot_sound = pygame.mixer.Sound("assets/sounds/sfx/cannon_shoot.wav")
     checkpoint_sound = pygame.mixer.Sound("assets/sounds/sfx/checkpoint.wav")
+    normal_music = pygame.mixer.Sound("assets/sounds/music/normal.mp3")
+    boss_music = pygame.mixer.Sound("assets/sounds/music/boss.mp3")
 
 
     def read_map(map_path):
@@ -520,7 +522,18 @@ def main():
 
         slept = False
         font.change_color((255, 255, 255))
+        music_playing = False
         while play:
+            if caption != "Sun Core! - Level 4":
+                if not music_playing:
+                    music = normal_music
+                    music.play(True)
+                    music_playing = True
+            else:
+                if not music_playing:
+                    music = boss_music
+                    music.play()
+                    music_playing = True
             if player.y > deep_limit:
                 damage_sound.play()
                 time.sleep(0.1)
@@ -590,6 +603,8 @@ def main():
             if win_timer >= 60:
                 level_select = True
                 play = False
+                music_playing = False
+                music.stop()
             #we draw the enemies
             for sprout in sprouts:
                 sprout[1].change_animation("idle")
@@ -602,6 +617,8 @@ def main():
                     player.x, player.y = player_spawn
                     cannon_bullets = []
                     sprout_bullets = []
+                    music_playing = False
+                    music.stop()
                     death_screen()
             for cannon in cannons:
                 loaded = False
@@ -650,6 +667,8 @@ def main():
                     player_momentum = [0, 0]
                     cannon_bullets = []
                     sprout_bullets = []
+                    music_playing = False
+                    music.stop()
                     death_screen()
                 for sprout in sprouts:
                     if bullet[0].colliderect(sprout[0]):
@@ -682,5 +701,7 @@ def main():
                         play = False
                         level_select = False
                         menu = True
+                        music_playing = False
+                        music.stop()
 if __name__ == "__main__":
     main()
