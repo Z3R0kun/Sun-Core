@@ -189,54 +189,6 @@ while True:
                 sys.exit()
             if levels_rect.collidepoint(pos):
                 level_select = True
-                map = engine.map.Map("assets/maps/prototype", 16)
-                scroll = [0, 0]
-                enemies_map = read_map("assets/maps/prototype/enemies.txt")
-                checkpoints_map = read_map("assets/maps/prototype/checkpoints.txt")
-                #we spawn the enemies
-                sprouts = []
-                cannons = []
-                total_checkpoints = []
-                cannon_bullets = []
-                sprout_bullets = []
-                y = 0
-                for line in enemies_map:
-                    x = 0
-                    for block in line:
-                        if block == "1":
-                            sprout_animation = engine.animations.AnimationDatabase()
-                            sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
-                            sprout_animation.change_animation("idle")
-                            sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
-                            sprouts.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), sprout_animation])
-                        if block == "2":
-                            cannon_animation = engine.animations.AnimationDatabase()
-                            cannon_animation.add_animation("assets/animations/cannon/idle", [40, 7, 7])
-                            cannon_animation.change_animation("idle")
-                            timer = 0
-                            cannons.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), cannon_animation, timer])
-
-
-                        x+= 1
-                    x = 0
-                    y += 1
-
-                y = 0
-                player_spawn = (150, 50)
-                player = pygame.Rect((player_spawn[0], player_spawn[1], 16, 16))
-                collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
-                player_momentum = [0, 0]
-                for line in checkpoints_map:
-                    x = 0
-                    for block in line:
-                        if block == "1":
-                            checkpoint_animation = engine.animations.AnimationDatabase()
-                            checkpoint_animation.add_animation("assets/animations/checkpoint/idle", [20, 7, 7, 7])
-                            checkpoint_animation.change_animation("idle")
-                            total_checkpoints.append([pygame.Rect((x * 16, y * 16, 16, 16)), checkpoint_animation])
-                        x+= 1
-                    x = 0
-                    y += 1
 
     while level_select:
         screen = pygame.display.set_mode(screen_size)
@@ -259,6 +211,55 @@ while True:
                 if level_prototype_rect.collidepoint(pos):
                     play = True
                     caption = "Sun Core! - Prototype level"
+                    backgrounds = ["assets/images/backgrounds/stars.png", "assets/images/backgrounds/sun.png"]
+                    map = engine.map.Map("assets/maps/prototype", 16)
+                    scroll = [0, 0]
+                    enemies_map = read_map("assets/maps/prototype/enemies.txt")
+                    checkpoints_map = read_map("assets/maps/prototype/checkpoints.txt")
+                    #we spawn the enemies
+                    sprouts = []
+                    cannons = []
+                    total_checkpoints = []
+                    cannon_bullets = []
+                    sprout_bullets = []
+                    y = 0
+                    for line in enemies_map:
+                        x = 0
+                        for block in line:
+                            if block == "1":
+                                sprout_animation = engine.animations.AnimationDatabase()
+                                sprout_animation.add_animation("assets/animations/sprout/idle", [7, 7, 7])
+                                sprout_animation.change_animation("idle")
+                                sprout_animation.add_animation("assets/animations/sprout/shoot", [7, 7, 7], loop = False)
+                                sprouts.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), sprout_animation])
+                            if block == "2":
+                                cannon_animation = engine.animations.AnimationDatabase()
+                                cannon_animation.add_animation("assets/animations/cannon/idle", [40, 7, 7])
+                                cannon_animation.change_animation("idle")
+                                timer = 0
+                                cannons.append([pygame.Rect((x * 16 + 4, y * 16 + 4, 6, 10)), cannon_animation, timer])
+
+
+                            x+= 1
+                        x = 0
+                        y += 1
+
+                    y = 0
+                    player_spawn = (150, 50)
+                    player = pygame.Rect((player_spawn[0], player_spawn[1], 16, 16))
+                    collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+                    player_momentum = [0, 0]
+                    for line in checkpoints_map:
+                        x = 0
+                        for block in line:
+                            if block == "1":
+                                checkpoint_animation = engine.animations.AnimationDatabase()
+                                checkpoint_animation.add_animation("assets/animations/checkpoint/idle", [20, 7, 7, 7])
+                                checkpoint_animation.change_animation("idle")
+                                total_checkpoints.append([pygame.Rect((x * 16, y * 16, 16, 16)), checkpoint_animation])
+                            x+= 1
+                        x = 0
+                        y += 1
                     level_select = False
 
     while play:
@@ -270,7 +271,8 @@ while True:
         display = pygame.Surface(DISPLAY_SIZE)
         pygame.display.set_caption(caption)
         #we draw on the screen what we need
-        display.fill((255, 255, 255))
+        for background in backgrounds:
+            display.blit(pygame.image.load(background), (0, 0))
         tiles = map.draw(display, scroll)
         for cannon in cannons:
             tiles.append(cannon[0])
