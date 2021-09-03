@@ -25,8 +25,8 @@ def main():
     checkpoint_sound = pygame.mixer.Sound("assets/sounds/sfx/checkpoint.wav")
     key_sound = pygame.mixer.Sound("assets/sounds/sfx/key_pick_up.wav")
     click_sound = pygame.mixer.Sound("assets/sounds/sfx/click.wav")
-    normal_music = pygame.mixer.Sound("assets/sounds/music/normal.mp3")
-    boss_music = pygame.mixer.Sound("assets/sounds/music/boss.mp3")
+    normal_music = pygame.mixer.Sound("assets/sounds/music/normal.wav")
+    boss_music = pygame.mixer.Sound("assets/sounds/music/boss.wav")
 
 
     def read_map(map_path):
@@ -111,7 +111,7 @@ def main():
             else:
                 main_text = "YOU DIED"
 
-            screen = pygame.display.set_mode(screen_size)
+            screen = pygame.display.set_mode(screen_size, )
             pygame.display.set_caption("YOU DIED!!")
             display = pygame.Surface(DISPLAY_SIZE)
             display.fill(bg_color)
@@ -161,7 +161,7 @@ def main():
         run = True
         while run:
             timer += 3
-            screen = pygame.display.set_mode(screen_size)
+            screen = pygame.display.set_mode(screen_size, )
             display = pygame.Surface(DISPLAY_SIZE)
             if timer/40 >= len(text) + 10:
                 display.blit(any_key, (85, 170))
@@ -182,7 +182,7 @@ def main():
     play = False
     level_select = False
     while True:
-        screen = pygame.display.set_mode(screen_size)
+        screen = pygame.display.set_mode(screen_size, )
         display = pygame.Surface(DISPLAY_SIZE)
         caption = "Sun Core - Main Menu"
         pygame.display.set_caption(caption)
@@ -241,7 +241,7 @@ def main():
                     level_select = True
 
         while level_select:
-            screen = pygame.display.set_mode(screen_size)
+            screen = pygame.display.set_mode(screen_size, )
             display = pygame.Surface(DISPLAY_SIZE)
             pygame.display.set_caption("Sun Core - Level Select")
             display.fill((255, 0, 0))
@@ -574,7 +574,7 @@ def main():
             scroll[1] += (player.y - scroll[1] - 108)/20
             clock.tick(60)
             #setting up the display and the screen
-            screen = pygame.display.set_mode(screen_size)
+            screen = pygame.display.set_mode(screen_size, )
             display = pygame.Surface(DISPLAY_SIZE)
             pygame.display.set_caption(caption)
             #we draw on the screen what we need
